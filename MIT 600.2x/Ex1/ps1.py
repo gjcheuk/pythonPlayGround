@@ -114,8 +114,23 @@ def brute_force_cow_transport(cows,limit=10):
     transported on a particular trip and the overall list containing all the
     trips
     """
-    # TODO: Your code here
-    pass
+    copy_cow = cows.copy()
+    cow_names = copy_cow.keys()
+    min_number_of_trip = len(cow_names)
+    for trips in get_partitions(cow_names):
+        is_possible = True
+        number_of_trip = len(trips) + 1
+        for trip in trips:
+            weight = 0
+            for name in trip:
+                weight += copy_cow[name]
+            if weight > limit:
+                is_possible = False
+                break
+        if number_of_trip < min_number_of_trip and is_possible == True:
+            min_number_of_trip = number_of_trip
+            result = trips
+    return result
 
         
 # Problem 3
@@ -132,8 +147,15 @@ def compare_cow_transport_algorithms():
     Returns:
     Does not return anything.
     """
-    # TODO: Your code here
-    pass
+    start_greedy = time.time()
+    greedy_cow_transport(cows, limit)
+    end_greedy = time.time()
+    print(end_greedy - start_greedy)
+    
+    start_brute = time.time()
+    brute_force_cow_transport(cows, limit)
+    end_brute = time.time()
+    print(end_brute - start_brute)
 
 
 """
@@ -143,7 +165,7 @@ lines to print the result of your problem.
 """
 
 cows = load_cows("ps1_cow_data.txt")
-limit=20
+limit=80
 print(cows)
 
 print(greedy_cow_transport(cows, limit))
