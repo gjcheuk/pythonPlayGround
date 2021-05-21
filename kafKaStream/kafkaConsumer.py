@@ -1,41 +1,43 @@
 from kafka import KafkaConsumer
 import json
+import sys
 from influxdb import InfluxDBClient
+from confluent_kafka import Consumer, KafkaError
 
 client = InfluxDBClient(host='localhost', port=8086, database='mako')
 client.create_database('mako')
 
-consumer = KafkaConsumer(
-    'mako',
-     bootstrap_servers=['localhost:9092'],
-     auto_offset_reset='earliest',
-     enable_auto_commit=True,
-     group_id='my-group',
-     value_deserializer=lambda x: json.loads(x.decode('utf-8')))
+c = Consumer({
+    'bootstrap.servers': 'localhost:9092',
+    'group.id': 'my-group',
+    'auto.offset.reset': 'latest',
+    'enable.auto.commit': True
+})
+c.subscribe(['mako_new_2'])
 
-for msg in consumer:
-    print(msg)
-#
-# try:
-#     while True:
-#         print('Waiting for message..')
-#         msg = consumer.poll(1)
-#         print(msg)
-#         if msg is None:
-#             continue
-#         if msg.error():
-#             print("Consumer error: {}".format(msg.error()))
-#             continue
-#         json_body = [
-#         {
-#             "measurement": "cpu_load",
-#             "tags": {
-#             },
-#             "fields":json.loads(msg.value())
-#         }
-#         ]
-#         client.write_points(json_body)
-# except KeyboardInterrupt:
-#     sys.stderr.write('%% Aborted by user\n')
-# finally:
-#     consumer.close()
+try:
+    while True:
+        print('Waiting for message..')
+        msg = c.poll(1.0)
+        if msg is None:
+            continue
+        if msg.error():
+            print("Consumer error: {}".format(msg.error()))
+            continue
+        json_body = [
+            {
+                "measurement": "cpu_load",
+                "tags": {
+                },
+                "fields": {
+                    "Float_value": json.loads(msg.value())
+                }
+            }
+        ]
+        print(json_body)
+        client.write_points(json_body)
+except KeyboardInterrupt:
+    sys.stderr.write('%% Aborted by user\n')
+finally:
+    c.close()
+
