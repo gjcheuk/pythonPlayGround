@@ -8,7 +8,7 @@ import sys
 
 def fetch_cpu_load():
     try:
-        return "Cpu Load is : " + str(psutil.cpu_percent(0.1)) + "%"
+        return psutil.cpu_percent(0.1)
     except Exception as e:
         print("Error getting cpu load")
         print(str(e))
@@ -44,8 +44,8 @@ def delivery_callback(err, msg):
 
 start_time = datetime.now()
 current_time = datetime.now()
-while current_time - start_time < timedelta(seconds = 10):
+while current_time - start_time < timedelta(seconds = 120):
     kafka_prod = producer_setup()
-    kafka_prod.produce('mako', value=serialize(fetch_cpu_load()), callback=delivery_callback)
-    kafka_prod.poll()
+    kafka_prod.produce('mako_new_2', value=serialize(fetch_cpu_load()), callback=delivery_callback)
+    kafka_prod.poll(1)
     current_time = datetime.now()
