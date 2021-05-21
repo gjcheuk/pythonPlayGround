@@ -46,6 +46,6 @@ start_time = datetime.now()
 current_time = datetime.now()
 while current_time - start_time < timedelta(seconds = 10):
     kafka_prod = producer_setup()
-    kafka_prod.produce('ComputingForGeeksTopic', value=serialize(fetch_cpu_load()), callback=delivery_callback)
+    kafka_prod.produce('mako', value=serialize(fetch_cpu_load()), callback=delivery_callback)
     kafka_prod.poll()
     current_time = datetime.now()
