@@ -34,7 +34,6 @@ try:
                 }
             }
         ]
-        print(json_body)
         client.write_points(json_body)
 except KeyboardInterrupt:
     sys.stderr.write('%% Aborted by user\n')

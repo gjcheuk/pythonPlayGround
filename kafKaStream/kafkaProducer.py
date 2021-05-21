@@ -38,13 +38,13 @@ def delivery_callback(err, msg):
     if err:
         sys.stderr.write('%% Message failed delivery: %s\n' % err)
     else:
-        sys.stderr.write('%% Message delivered to %s [%d] @ %d\n' %
+        sys.stdout.write('%% Message delivered to %s [%d] @ %d\n' %
                 (msg.topic(), msg.partition(), msg.offset()))
 
 
 start_time = datetime.now()
 current_time = datetime.now()
-while current_time - start_time < timedelta(seconds = 120):
+while True:
     kafka_prod = producer_setup()
     kafka_prod.produce('mako_new_2', value=serialize(fetch_cpu_load()), callback=delivery_callback)
     kafka_prod.poll(1)
